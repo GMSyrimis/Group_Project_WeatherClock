@@ -241,6 +241,13 @@ public class Drawing {
                 fourthLine += " "+"    "+" ";
                 fifthLine +=  " "+"    "+" ";
             }
+            if(rawLetter == '*'){
+                firstLine +=  " "+"    |    "+" ";
+                secondLine += " "+"   █ █   "+" ";
+                thirdLine +=  " "+"--█sun█--"+" ";
+                fourthLine += " "+"   █ █   "+" ";
+                fifthLine +=  " "+"    |    "+" ";
+            }
         }
 
         fullPrint.add(firstLine);

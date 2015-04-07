@@ -84,12 +84,38 @@ public class Main {
             int startARC = 3;
             int endARC = numCols-3;
             int maxHeightARC = numRows/5;
-            String lineTEST = "";
-            for(int q=startARC; q<endARC; q++){
-                lineTEST +="+";
+
+            ArrayList<String> sunTEST;
+            sunTEST = Drawing.getPrintLines("*");
+
+            for(int posY=0; posY<maxHeightARC; posY++){
+                // posY from 0 to 15 say
+                int posX = (-1*(posY*posY)) + 21*posY + numCols/2-6;
+                // first part grows dramatically as posY is squared and we make it majorly negative by *-1
+                // second part we add a major positive that doesn't grow exponentially
+                // third we add another big positive number that is stable
+                for (int i=0; i<sunTEST.size(); i++){
+                    terminal.moveTo(posY+i+2, posX);
+                    terminal.write(sunTEST.get(i));
+                }
+//                terminal.moveTo(posY, posX);
+//                terminal.write("+");
             }
-            terminal.moveTo(maxHeightARC, startARC);
-            terminal.write(lineTEST);
+            for(int posY=0; posY<maxHeightARC; posY++){
+                // posY from 0 to 15 say
+                int posX = (posY*posY) - 21*posY + numCols/2+6;
+                // first part grows dramatically as posY is squared and we make it majorly negative by *-1
+                // second part we add a major positive that doesn't grow exponentially
+                // third we add another big positive number that is stable
+                for (int i=0; i<sunTEST.size(); i++){
+                    terminal.moveTo(posY+i+2, posX);
+                    terminal.write(sunTEST.get(i));
+                }
+//                terminal.moveTo(posY, posX);
+//                terminal.write("+");
+            }
+
+
 
             // Get the current date and time.
             Calendar cal = Calendar.getInstance();
