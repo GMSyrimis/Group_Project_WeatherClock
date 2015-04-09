@@ -3,6 +3,7 @@ package nyc.c4q.ac21.weatherclock;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import java.awt.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -13,6 +14,31 @@ public class Main {
     /**
      * SAMPLE CODE: Returns sunset time for the current day.
      */
+
+    public static Calendar getSunrise() {
+        //Change the New%20York,NY to a user defined variable
+        // Creating a URL object to the JSON generator
+        URL url = HTTP.stringToURL("http://api.openweathermap.org/data/2.5/weather?q=New%20York,NY");
+        // Goes to the webpage and saves the JSON to a String
+        String doc = HTTP.get(url);
+        // we create a JSONObject called obj and
+        // we typecast JSONValue.parse(doc) to JSONObject
+        JSONObject obj = (JSONObject) JSONValue.parse(doc);
+        // New JSONObject called sys
+        // This we call get on obj
+        JSONObject sys = (JSONObject) obj.get("sys");
+        // check if out sys JSONObject is null
+        if (sys == null)
+            return Calendar.getInstance();//REMOVE ME
+        // Getting the sunsetTimestamp from sys
+        Long sunriseTimestamp = (Long) sys.get("sunrise");
+        // Checking if the timestamp is null
+        if (sunriseTimestamp == null)
+            return Calendar.getInstance();//REMOVE ME
+        // Returning a calendar with the timestamp using the DateTime class
+        return DateTime.fromTimestamp(sunriseTimestamp);
+    }
+
 
     // method that returns a calendar with the sunsetTimestamp
     public static Calendar getSunset() {
@@ -29,19 +55,17 @@ public class Main {
         JSONObject sys = (JSONObject) obj.get("sys");
         // check if out sys JSONObject is null
         if (sys == null)
-            return null;
+            return Calendar.getInstance();//REMOVE ME
         // Getting the sunsetTimestamp from sys
         Long sunsetTimestamp = (Long) sys.get("sunset");
         // Checking if the timestamp is null
         if (sunsetTimestamp == null)
-            return null;
+            return Calendar.getInstance();//REMOVE ME
         // Returning a calendar with the timestamp using the DateTime class
         return DateTime.fromTimestamp(sunsetTimestamp);
     }
 
-    /**
-     * SAMPLE CODE: Displays a very primitive clock.
-     */
+
 
 
     public static void main(String[] args) {
@@ -71,106 +95,115 @@ public class Main {
 //------------- TERMINAL IS SET UP ----------------------
 
 
+        int blueBannerGraphicX=5;
+        int blueBannerGraphicY=numRows/3;
+        int blueBannerGraphicWidth=numCols-6;
+        int blueBannerGraphicHeight=numRows/3+7;
 
-        // Get sunset time for the current day.
+        int centerBlockGraphicWidth=numCols/3+10;
+        int centerBlockGraphicHeight=numRows/3+15;
+        int centerBlockGraphicX=numCols/2-centerBlockGraphicWidth/2;
+        int centerBlockGraphicY=numRows/5+2;
+
+
+        Calendar sunrise = getSunrise();
+        String sunriseTime = DateTime.formatTime(sunrise, false);
+
+        if (sunrise.get(Calendar.HOUR_OF_DAY) >= 12)
+            sunriseTime += " PM";
+        else
+            sunriseTime += " AM";
         Calendar sunset = getSunset();
-
-        int xPosition = 1 + numCols / 2 - 5;
-        int clockPosition = 1+numCols / 4 - 5;
+        String sunsetTime = DateTime.formatTime(sunset, false);
+        if (sunset.get(Calendar.HOUR_OF_DAY) >= 12)
+            sunsetTime += " PM";
+        else
+            sunsetTime += " AM";
 
 
         while (true) {
-            //BUILDING THE SUN ARC
-            int startARC = 3;
-            int endARC = numCols-3;
-            int maxHeightARC = numRows/5;
-
-            ArrayList<String> sunTEST;
-            sunTEST = Drawing.getPrintLines("*");
-
-            for(int posY=0; posY<maxHeightARC; posY++){
-                // posY from 0 to 15 say
-                int posX = (-1*(posY*posY)) + 21*posY + numCols/2-6;
-                // first part grows dramatically as posY is squared and we make it majorly negative by *-1
-                // second part we add a major positive that doesn't grow exponentially
-                // third we add another big positive number that is stable
-                for (int i=0; i<sunTEST.size(); i++){
-                    terminal.moveTo(posY+i+2, posX);
-                    terminal.write(sunTEST.get(i));
-                }
-//                terminal.moveTo(posY, posX);
-//                terminal.write("+");
-            }
-            for(int posY=0; posY<maxHeightARC; posY++){
-                // posY from 0 to 15 say
-                int posX = (posY*posY) - 21*posY + numCols/2+6;
-                // first part grows dramatically as posY is squared and we make it majorly negative by *-1
-                // second part we add a major positive that doesn't grow exponentially
-                // third we add another big positive number that is stable
-                for (int i=0; i<sunTEST.size(); i++){
-                    terminal.moveTo(posY+i+2, posX);
-                    terminal.write(sunTEST.get(i));
-                }
-//                terminal.moveTo(posY, posX);
-//                terminal.write("+");
-            }
 
 
+            terminal.setBackgroundColor(AnsiTerminal.Color.BLUE, false);
+            Drawing banner = new Drawing(terminal,blueBannerGraphicWidth,blueBannerGraphicHeight,blueBannerGraphicX,blueBannerGraphicY);
 
-            // Get the current date and time.
+            terminal.setBackgroundColor(AnsiTerminal.Color.BLUE,true);
+            Drawing centerBlock = new Drawing(terminal,centerBlockGraphicWidth,centerBlockGraphicHeight,centerBlockGraphicX,centerBlockGraphicY);
+
+
+            // Get the current date and time and continuously updates.
             Calendar cal = Calendar.getInstance();
-           
-            // Write the time, including seconds, in white.
-            String time = DateTime.formatTime(cal, true);
 
+            String time = DateTime.formatTime(cal, true);
             if (cal.get(Calendar.HOUR_OF_DAY) >= 12)
                 time += " PM";
             else
                 time += " AM";
             terminal.setTextColor(AnsiTerminal.Color.WHITE);
+            terminal.setBackgroundColor(AnsiTerminal.Color.BLUE,true);
+            Drawing.getPrintLines(terminal,time.toLowerCase(),numCols/2-30,numRows/5+2);
 
-            ArrayList<String> fullTime;
-            fullTime = Drawing.getPrintLines(time.toLowerCase());
 
-            for (int i=0; i<fullTime.size(); i++){
-                terminal.moveTo(22+i, 2);
-                terminal.write("  " + fullTime.get(i) + "  ");
+//            String date = DateTime.formatDate(cal);
+//            terminal.setTextColor(AnsiTerminal.Color.WHITE, false);
+//            Drawing.getPrintLines(terminal,date,20,20);
+
+
+            //Prints Daylight Savings Time
+            boolean isDST = DST.isDST(cal);
+            String dstInEffect = "";
+            if(isDST == true) {
+                dstInEffect += "In Effect";
+            } else {
+                dstInEffect += "Not In Effect";
+            }
+            terminal.moveTo(33, 10);
+            terminal.setTextColor(AnsiTerminal.Color.WHITE);
+            terminal.setBackgroundColor(AnsiTerminal.Color.BLUE,false);
+            terminal.write("Daylight Savings Time: " + dstInEffect);
+
+
+            //Prints National Holiday -- should we have it to print nothing if it isn't a national holiday?
+            HashMap<Calendar, String> holidays = Holidays.getHolidays("National holiday");
+            if(holidays.containsKey(cal))
+            {
+                terminal.moveTo(35, 10);
+                terminal.setTextColor(AnsiTerminal.Color.WHITE);
+                terminal.setBackgroundColor(AnsiTerminal.Color.BLUE,false);
+                terminal.write("national holiday:  " + holidays.get(cal));
+            }
+            else
+            {
+                terminal.moveTo(35, 10);
+                terminal.setTextColor(AnsiTerminal.Color.WHITE);
+                terminal.setBackgroundColor(AnsiTerminal.Color.BLUE,false);
+                terminal.write("national holiday:  " + "not a national holiday");
             }
 
 
-            // Write the date in gray.
-            String date = DateTime.formatDate(cal);
+            Drawing.printMonthCalendar(terminal,cal,12,numRows/5*2);
 
-            terminal.setTextColor(AnsiTerminal.Color.WHITE, false);
-
-            ArrayList<String> fullDate;
-            fullDate = Drawing.getPrintLines(date);
-            for (int i=0; i<fullDate.size(); i++){
-                terminal.moveTo(29+i, 2);
-                terminal.write("  " + fullDate.get(i) + "  ");
-            }
-
-            // Write the day of the week in green on a blue background.
+            // GOODISH
             String dayOfWeek = DateTime.getDayOfWeekNames().get(cal.get(Calendar.DAY_OF_WEEK));
-
             terminal.setTextColor(AnsiTerminal.Color.GREEN);
-            terminal.setBackgroundColor(AnsiTerminal.Color.BLUE);
-            // loop through the array
-            ArrayList<String> fullPrint;
-            fullPrint = Drawing.getPrintLines(dayOfWeek.toLowerCase());
-            for (int i=0; i<fullPrint.size(); i++){
-                terminal.moveTo(37+i, 2);
-                terminal.write("  " + fullPrint.get(i) + "  ");
-            }
+            terminal.setBackgroundColor(AnsiTerminal.Color.BLUE,true);
+//            terminal.moveTo(numRows/5,numCols/2-dayOfWeek.length()/2);
+//            terminal.write(dayOfWeek);
+            Drawing.getPrintLines(terminal,dayOfWeek.toLowerCase(),numCols/2-30,numRows/5*4-3);
 
-            // Set the background color back to black.
-            terminal.setBackgroundColor(AnsiTerminal.Color.BLACK);
-
-            // Write sunset time in dark yellow.
-            String sunsetTime = DateTime.formatTime(sunset, false);
+            //GOOD
+            terminal.setBackgroundColor(AnsiTerminal.Color.BLUE,false);
             terminal.setTextColor(AnsiTerminal.Color.YELLOW, false);
-            terminal.moveTo(21, 2);
-            terminal.write("sunset at " + sunsetTime);
+            terminal.moveTo(numRows / 3, numCols - 19);
+            terminal.write("Sunset at " + sunsetTime);
+            //GOOD
+            terminal.setBackgroundColor(AnsiTerminal.Color.BLUE,false);
+            terminal.setTextColor(AnsiTerminal.Color.YELLOW, true);
+            terminal.moveTo(numRows / 3, 5);
+            terminal.write("Sunrise at " + sunriseTime);
+            //GOOD
+            Drawing.printSUN(terminal,cal,sunrise,numRows,numCols);
+            Drawing.drawWeather(terminal,numCols/2-12,numRows/2-6,"clearDay");
 
             // Pause for one second, and do it again.
             DateTime.pause(1.0);
