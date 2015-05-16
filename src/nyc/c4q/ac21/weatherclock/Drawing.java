@@ -65,13 +65,13 @@ public class Drawing {
 
         String weather = rawString;
         // fill these in with the weather strings returned by the api
-        String clearDay = "clearDay";
+        String clearDay = "Clear";
         String clearNight = "";
         String partlyCloudyDay = "";
         String partlyCloudyNight = "";
-        String cloudy = "";
+        String cloudy = "Clouds";
         String lightRain = "";
-        String rainy = "";
+        String rainy = "Rain";
         String thunderstorm = "";
         String snow = "";
 
@@ -253,7 +253,7 @@ public class Drawing {
         int maxHeightARC = numRows/5;
         ArrayList<Integer> coordinatesX = new ArrayList<Integer>();
         ArrayList<Integer> coordinatesY = new ArrayList<Integer>();
-        int whichSun = current-sunriseTime;
+        int whichSun = current-sunriseTime-2;
 
         for(int posY=0; posY<maxHeightARC-4; posY++){
             int posX = (posY*posY) - 21*posY + numCols/2-4;
